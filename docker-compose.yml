@@ -4,24 +4,29 @@ jenkins-slave:
     JENKINS_PASSWORD: jenkins
     JENKINS_MASTER: http://jenkins-master:8080
   labels:
-    io.rancher.scheduler.affinity:host_label: provider=aws
+    io.rancher.scheduler.affinity:host_label: profile=jenkins
   tty: true
   image: rancher/jenkins-slave
   links:
   - jenkins-master:jenkins-master
   privileged: true
   volumes:
-  - /var/jenkins
+  - jenkins_data:/var/jenkins
+  volume_driver:
+  - convoy
   stdin_open: true
 jenkins-master:
   restart: 'no'
   labels:
-    io.rancher.scheduler.affinity:host_label: provider=aws
+    io.rancher.scheduler.affinity:host_label: jenkins-master=true
   tty: true
   image: rancher/jenkins-master
   privileged: true
   stdin_open: true
-  volume_driver: /var/jenkins_home
+  volumes:
+  - jenkins_data:/var/jenkins
+  volume_driver:
+  - convoy
 jenkins-lb:
   ports:
   - '8080'
